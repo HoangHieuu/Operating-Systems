@@ -3,7 +3,7 @@ ANS_FILE=".calc_ans"
 HIST_FILE=".calc_hist"
 
 clear_screen() {
-    if[ -t 1]; then
+    if [ -t 1 ]; then
         clear
     fi
 }
