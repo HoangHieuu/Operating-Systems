@@ -4,12 +4,6 @@
 #include <string.h>
 #include "math_logic.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "math_logic.h"
-
 int parse_operand(const char *token, double ans, double *value) {
     char *end = NULL;
 
