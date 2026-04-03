@@ -54,3 +54,65 @@ static double load_ans(void) {
     return ans;
 }
 
+int main(void) {
+    char input[INPUT_SIZE];
+    char left[TOKEN_SIZE], op_str[TOKEN_SIZE], right[TOKEN_SIZE], extra[TOKEN_SIZE];
+    double ans = load_ans();
+
+    clear_screen();
+
+    while (1) {
+        double a;
+        double b;
+        double result;
+        int parsed;
+        int status;
+        char out[64];
+
+        printf(">> ");
+        fflush(stdout);
+
+        if (!fgets(input, sizeof(input), stdin)) {
+            break;
+        }
+
+        input[strcspn(input, "\n")] = '\0';
+
+        if (strcmp(input, "EXIT") == 0) {
+            break;
+        }
+
+        parsed = sscanf(input, "%63s %63s %63s %63s", left, op_str, right, extra);
+        if (parsed != 3 || strlen(op_str) != 1) {
+            printf("SYNTAX ERROR\n");
+            wait_for_key();
+            clear_screen();
+            continue;
+        }
+
+        if (parse_operand(left, ans, &a) != 0 || parse_operand(right, ans, &b) != 0) {
+            printf("SYNTAX ERROR\n");
+            wait_for_key();
+            clear_screen();
+            continue;
+        }
+
+        status = calculate(a, op_str[0], b, &result);
+        if (status == 1) {
+            printf("MATH ERROR\n");
+        } else if (status == 2) {
+            printf("SYNTAX ERROR\n");
+        } else {
+            format_result(result, out, sizeof(out));
+            printf("%s\n", out);
+            ans = result;
+            save_ans(ans);
+        }
+
+        wait_for_key();
+        clear_screen();
+    }
+
+    return 0;
+}
+
