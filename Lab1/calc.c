@@ -54,6 +54,17 @@ static double load_ans(void) {
     return ans;
 }
 
+static void save_ans(double ans) {
+    FILE *f = fopen(".calc_ans", "w");
+
+    if (!f) {
+        return;
+    }
+
+    fprintf(f, "%.10g\n", ans);
+    fclose(f);
+}
+
 int main(void) {
     char input[INPUT_SIZE];
     char left[TOKEN_SIZE], op_str[TOKEN_SIZE], right[TOKEN_SIZE], extra[TOKEN_SIZE];
