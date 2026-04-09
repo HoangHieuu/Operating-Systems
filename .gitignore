@@ -1,0 +1,29 @@
+# macOS / editor
+.DS_Store
+*.swp
+*.swo
+
+# C/C++ build artifacts
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.out
+
+# Common debug/runtime logs
+*.log
+core
+
+# Lab-generated binaries
+Lab1/**/a.out
+Lab2/**/a.out
+Lab2/problem3_msqqueue/msgrcv
+Lab2/problem3_msqqueue/msgsnd
+Lab2/problem4/reader
+Lab2/problem4/writer
+
+# Shared-memory/mmap runtime files
+mmap_shared.bin
+Lab2/mmap_shared.bin
+Lab2/problem4/mmap_shared.bin
