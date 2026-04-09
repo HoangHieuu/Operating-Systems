@@ -8,7 +8,7 @@
 #define INPUT_SIZE 256
 #define TOKEN_SIZE 64
 
-
+// Hàm để xóa màn hình
 static void clear_screen(void) {
     if (isatty(STDOUT_FILENO)) {
         printf("\033[2J\033[H");
@@ -16,7 +16,7 @@ static void clear_screen(void) {
     }
 }
 
-
+// Hàm đợi người dùng nhấn một phím bất kỳ
 static void wait_for_key(void) {
     int ch;
 
@@ -39,6 +39,7 @@ static void wait_for_key(void) {
     (void)ch;
 }
 
+// mở file để lưu kết quả của phép tính cuối cùng, nếu file không tồn tại hoặc có lỗi khi đọc, trả về 0.0
 static double load_ans(void) {
     FILE *f = fopen(".calc_ans", "r");
     double ans = 0.0;
@@ -54,6 +55,7 @@ static double load_ans(void) {
     return ans;
 }
 
+// mở file để lưu kết quả của phép tính cuối cùng, nếu file không tồn tại hoặc có lỗi khi đọc, trả về 0.0
 static void save_ans(double ans) {
     FILE *f = fopen(".calc_ans", "w");
 
@@ -93,6 +95,7 @@ int main(void) {
             break;
         }
 
+        // Phân tích cú pháp đầu vào thành các thành phần: toán hạng trái, toán tử, toán hạng phải và phần dư (nếu có)
         parsed = sscanf(input, "%63s %63s %63s %63s", left, op_str, right, extra);
         if (parsed != 3 || strlen(op_str) != 1) {
             printf("SYNTAX ERROR\n");
@@ -101,6 +104,7 @@ int main(void) {
             continue;
         }
 
+        // Chuyển đổi toán hạng trái và phải thành giá trị số thực, sử dụng giá trị của phép tính trước đó (ans) nếu có từ khóa ANS, và lưu kết quả vào a và b. Nếu có lỗi trong quá trình phân tích, hiển thị thông báo lỗi và tiếp tục vòng lặp
         if (parse_operand(left, ans, &a) != 0 || parse_operand(right, ans, &b) != 0) {
             printf("SYNTAX ERROR\n");
             wait_for_key();
