@@ -27,3 +27,10 @@ Lab2/problem4/writer
 mmap_shared.bin
 Lab2/mmap_shared.bin
 Lab2/problem4/mmap_shared.bin
+Lab2/problem4/mmap
+Assignment/os
+Lab2/problem1_sharedMemory/rating
+Lab2/problem2_multiThread/sum_multi_thread
+Lab2/problem2_multiThread/sum_serial
+.DS_Store
+Lab2/problem4/mmap.bin
