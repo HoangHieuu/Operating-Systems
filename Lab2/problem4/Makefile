@@ -1,13 +1,13 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
+CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -O2
+TARGET = mmap
 
-all: writer reader
+.PHONY: all clean
 
-writer: writer.c
-	$(CC) $(CFLAGS) writer.c -o writer
+all: $(TARGET)
 
-reader: reader.c
-	$(CC) $(CFLAGS) reader.c -o reader
+$(TARGET): mmap.c
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f writer reader mmap_shared.bin
+	rm -f $(TARGET) mmap.bin
