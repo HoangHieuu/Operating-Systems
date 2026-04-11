@@ -34,3 +34,8 @@ Lab2/problem2_multiThread/sum_multi_thread
 Lab2/problem2_multiThread/sum_serial
 .DS_Store
 Lab2/problem4/mmap.bin
+Lab2/problem4_mmap/mmap.bin
+Lab2/problem4_mmap/mmap
+Lab2/problem4/mmap.c
+Lab2/problem4/Makefile
+Lab2/problem3_msqqueue/problem3
