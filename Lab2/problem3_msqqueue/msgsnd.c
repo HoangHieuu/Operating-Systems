@@ -18,6 +18,7 @@
 #define MSG_KEY 0x123
 #define MSG_TYPE_FROM_MSGSND 1
 #define MSG_TYPE_FROM_MSGRCV 2
+#define EXIT_TOKEN "__CHAT_EXIT__"
 
 struct my_msgbuf {
    long mtype;
@@ -77,7 +78,7 @@ static void *send_thread(void *arg) {
 
       if (fgets(line, sizeof(line), stdin) == NULL) {
          pthread_mutex_lock(&send_lock);
-         if (send_text(ctx->msqid, ctx->send_type, "end") == -1) {
+         if (send_text(ctx->msqid, ctx->send_type, EXIT_TOKEN) == -1) {
             perror("msgsnd");
          }
          pthread_mutex_unlock(&send_lock);
@@ -96,10 +97,6 @@ static void *send_thread(void *arg) {
       }
       pthread_mutex_unlock(&send_lock);
 
-      if (strcmp(line, "end") == 0) {
-         running = false;
-         break;
-      }
    }
 
    return NULL;
@@ -124,13 +121,13 @@ static void *recv_thread(void *arg) {
          break;
       }
 
-      printf("peer: \"%s\"\n", buf.mtext);
-      fflush(stdout);
-
-      if (strcmp(buf.mtext, "end") == 0) {
+      if (strcmp(buf.mtext, EXIT_TOKEN) == 0) {
          running = false;
          break;
       }
+
+      printf("Received: \"%s\"\n", buf.mtext);
+      fflush(stdout);
    }
 
    return NULL;
@@ -151,8 +148,7 @@ int main(void) {
    ctx.send_type = MSG_TYPE_FROM_MSGSND;
    ctx.recv_type = MSG_TYPE_FROM_MSGRCV;
 
-   printf("message queue: two-way mode (msgsnd side).\n");
-   printf("Type messages and press Enter. Type \"end\" to quit.\n");
+   printf("Chat started. Type messages and press Enter to send. Press Ctrl + D to exit.\n");
 
    if (pthread_create(&sender, NULL, send_thread, &ctx) != 0) {
       perror("pthread_create sender");
@@ -174,6 +170,6 @@ int main(void) {
       return 1;
    }
 
-   printf("message queue: closed (msgsnd side).\n");
+   printf("Your friend left. Press Ctrl + D to exit.\nChat ended\n");
    return 0;
 }
