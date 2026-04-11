@@ -1,15 +1,12 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
+CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -O2
 LDFLAGS = -pthread
 
-TARGETS = msgrcv msgsnd
+TARGETS = problem3
 
 all: $(TARGETS)
 
-msgrcv: msgrcv.c
-	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
-
-msgsnd: msgsnd.c
+problem3: problem3.c
 	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
 
 clean:
