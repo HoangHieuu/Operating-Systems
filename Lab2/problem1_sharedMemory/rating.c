@@ -6,93 +6,137 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <stdint.h>
 
 #define NUM_MOVIES 1682
+#define NUM_CHILDREN 2
 #define FILE1 "movie-100k_1.txt"
 #define FILE2 "movie-100k_2.txt"
 
 struct SharedData {
-    double sums1[NUM_MOVIES + 1];
-    int counts1[NUM_MOVIES + 1];
-    double sums2[NUM_MOVIES + 1];
-    int counts2[NUM_MOVIES + 1];
+    long long sums[NUM_CHILDREN][NUM_MOVIES + 1];
+    int counts[NUM_CHILDREN][NUM_MOVIES + 1];
+    long total_rows[NUM_CHILDREN];
+    long valid_rows[NUM_CHILDREN];
 };
 
-void process_file(const char *filename, double *sums, int *counts) {
-    FILE *fp = fopen(filename, "r"); 
-    if (!fp) {
+static void process_file(
+    const char *filename,
+    long long *sums,
+    int *counts,
+    long *total_rows,
+    long *valid_rows
+) {
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL) {
         perror("fopen");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
+
     char line[256];
-    while (fgets(line, sizeof(line), fp)) {
-        int user, movie, rating;
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        int user;
+        int movie;
+        int rating;
         long timestamp;
-        if (sscanf(line, "%d\t%d\t%d\t%ld", &user, &movie, &rating, &timestamp) == 4) {
-            if (movie >= 1 && movie <= NUM_MOVIES) {
-                sums[movie] += rating;
-                counts[movie]++;
-            }
+
+        (*total_rows)++;
+
+        if (sscanf(line, "%d\t%d\t%d\t%ld", &user, &movie, &rating, &timestamp) != 4) {
+            continue;
         }
+        if (movie < 1 || movie > NUM_MOVIES) {
+            continue;
+        }
+
+        sums[movie] += rating;
+        counts[movie]++;
+        (*valid_rows)++;
     }
+
     fclose(fp);
 }
 
-int main() {
-    key_t key_shm = ftok(".", 'a');
-    int shmid = shmget(key_shm, sizeof(struct SharedData), IPC_CREAT | 0666);
+int main(void) {
+    key_t key = ftok(".", 'a');
+    if (key == -1) {
+        perror("ftok");
+        return EXIT_FAILURE;
+    }
+
+    int shmid = shmget(key, sizeof(struct SharedData), IPC_CREAT | 0666);
     if (shmid == -1) {
         perror("shmget");
-        exit(1);
+        return EXIT_FAILURE;
     }
+
     struct SharedData *data = shmat(shmid, NULL, 0);
-    if ((intptr_t)data == -1) {
+    if (data == (void *) -1) {
         perror("shmat");
-        exit(1);
+        return EXIT_FAILURE;
     }
-    memset(data, 0, sizeof(struct SharedData));
+    memset(data, 0, sizeof(*data));
 
     pid_t child1 = fork();
+    if (child1 < 0) {
+        perror("fork");
+        shmdt(data);
+        shmctl(shmid, IPC_RMID, NULL);
+        return EXIT_FAILURE;
+    }
     if (child1 == 0) {
-        // child1
-        struct SharedData *data_c = shmat(shmid, NULL, 0);
-        if ((intptr_t)data_c == -1) {
-            perror("shmat");
-            exit(1);
-        }
-        process_file(FILE1, data_c->sums1, data_c->counts1);
-        shmdt(data_c);
-        exit(0);
+        process_file(
+            FILE1,
+            data->sums[0],
+            data->counts[0],
+            &data->total_rows[0],
+            &data->valid_rows[0]
+        );
+        shmdt(data);
+        _exit(EXIT_SUCCESS);
     }
 
     pid_t child2 = fork();
+    if (child2 < 0) {
+        perror("fork");
+        wait(NULL);
+        shmdt(data);
+        shmctl(shmid, IPC_RMID, NULL);
+        return EXIT_FAILURE;
+    }
     if (child2 == 0) {
-        // child2
-        struct SharedData *data_c = shmat(shmid, NULL, 0);
-        if ((intptr_t)data_c == -1) {
-            perror("shmat");
-            exit(1);
-        }
-        process_file(FILE2, data_c->sums2, data_c->counts2);
-        shmdt(data_c);
-        exit(0);
+        process_file(
+            FILE2,
+            data->sums[1],
+            data->counts[1],
+            &data->total_rows[1],
+            &data->valid_rows[1]
+        );
+        shmdt(data);
+        _exit(EXIT_SUCCESS);
     }
 
-    // parent waits for both children finish their work
     wait(NULL);
     wait(NULL);
 
-    // compute and print averages
-    for (int i = 1; i <= NUM_MOVIES; i++) {
-        double total_sum = data->sums1[i] + data->sums2[i];
-        int total_count = data->counts1[i] + data->counts2[i];
+    printf("=== Movie Rating Statistics (combined from 2 files) ===\n");
+    printf("%-8s %-10s %-10s\n", "MovieID", "Ratings", "Average");
+
+    long total_ratings = 0;
+    int rated_movies = 0;
+
+    for (int movie_id = 1; movie_id <= NUM_MOVIES; movie_id++) {
+        long long total_sum = data->sums[0][movie_id] + data->sums[1][movie_id];
+        int total_count = data->counts[0][movie_id] + data->counts[1][movie_id];
+
         if (total_count > 0) {
-            printf("Movie %d: %.4f\n", i, total_sum / total_count);
+            double avg = (double) total_sum / (double) total_count;
+            printf("%-8d %-10d %-10.4f\n", movie_id, total_count, avg);
+            total_ratings += total_count;
+            rated_movies++;
         }
     }
 
     shmdt(data);
     shmctl(shmid, IPC_RMID, NULL);
-    return 0;
+    return EXIT_SUCCESS;
 }
