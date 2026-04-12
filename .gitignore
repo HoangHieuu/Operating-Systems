@@ -39,3 +39,4 @@ Lab2/problem4_mmap/mmap
 Lab2/problem4/mmap.c
 Lab2/problem4/Makefile
 Lab2/problem3_msqqueue/problem3
+.DS_Store
