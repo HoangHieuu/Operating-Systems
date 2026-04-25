@@ -46,3 +46,10 @@ Lab2/problem3_msqqueue/problem3
 *.mdc
 *.pdf
 *.DS_Store
+
+Lab3/labSync-student/ex2aggsum/aggsum
+Lab3/labSync-student/ex1seqlock/seqlock_test
+Lab3/labSync-student/ex3logbuf/logbuf
+Lab3/labSync-student/p1mutex/shrdmem
+Lab3/labSync-student/p3dinPhil/dinPhil
+Lab3/labSync-student/p2pc/pc
