@@ -43,3 +43,6 @@ Lab2/problem3_msqqueue/problem3
 
 *.md
 
+*.mdc
+
+*.DS_Store
