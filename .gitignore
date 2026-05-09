@@ -9,11 +9,27 @@
 *.a
 *.so
 *.dylib
+*.exe
 *.out
 
 # Common debug/runtime logs
 *.log
 core
+
+# Archives and generated document build files
+*.zip
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+
+# Packaged lab submissions / reports
+Lab4/2452332_NguyenTranHoangHieu_Lab4/
+Lab4/problem3/
+
+# FUSE temporary files
+.fuse_hidden*
 
 # Lab-generated binaries
 Lab1/**/a.out
@@ -48,8 +64,13 @@ Lab2/problem3_msqqueue/problem3
 *.DS_Store
 
 Lab3/labSync-student/ex2aggsum/aggsum
+Lab3/labSync-student/ex1seqlock/seqlock
 Lab3/labSync-student/ex1seqlock/seqlock_test
 Lab3/labSync-student/ex3logbuf/logbuf
+Lab3/labSync-student/ex4waitnotify/waitnotify
+Lab3/labSync-student/ex5periodicdetect/periodic_detector
+Lab3/labSync-student/ex6asyncreq/async_resources
+Lab3/labSync-student/ex7lockfreestack/lockfree_stack
 Lab3/labSync-student/p1mutex/shrdmem
 Lab3/labSync-student/p3dinPhil/dinPhil
 Lab3/labSync-student/p2pc/pc
