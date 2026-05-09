@@ -38,7 +38,7 @@ static inline int pthread_seqlock_destroy(pthread_seqlock_t *seqlock)
 }
 
 /*
- * README contains `pthread_rwlock_destroy(pthread_seqlock_t*)`;
+ * README contains `pthread_seqlock_destroy(pthread_seqlock_t*)`;
  * map it to the intended seqlock destroy API for compatibility.
  */
 #define pthread_rwlock_destroy pthread_seqlock_destroy
