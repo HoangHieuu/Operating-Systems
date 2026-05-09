@@ -43,6 +43,7 @@ long validate_sum(int arraysize);
 long sumbuf = 0;
 int* shrdarrbuf;
 pthread_mutex_t mtx;
+struct _appconf appconf;
 
 void* sum_worker (void *arg) {
    int i;

@@ -13,7 +13,7 @@
 
 int tonum (const char * nptr, int * num);
 
-struct _appconf {
+extern struct _appconf {
   int arrsz;
   int tnum;
   int seednum;
