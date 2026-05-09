@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <unistd.h>
+#include "bktpool.h"
+
+int func(void * arg)
+{
+    int id = *((int *) arg);
+
+    printf("Task func - Hello from %d\n", id);
+    fflush(stdout);
+
+    return 0;
+}
+
+int main(int argc, char * argv[])
+{
+    unsigned int tid[15];
+    int wid[15];
+    int id[15];
+    int ret;
+
+    taskid_seed = 0;
+    wrkid_cur = 0;
+    bktask_sz = 0;
+
+    ret = bktpool_init();
+
+    if (ret != 0)
+        return -1;
+
+    id[0] = 1;
+    bktask_init(&tid[0], &func, (void *) &id[0]);
+    id[1] = 2;
+    bktask_init(&tid[1], &func, (void *) &id[1]);
+    id[2] = 5;
+    bktask_init(&tid[2], &func, (void *) &id[2]);
+
+    wid[1] = bkwrk_get_worker();
+    ret = bktask_assign_worker(tid[0], wid[1]);
+    if (ret != 0)
+        printf("assign_task_failed tid=%d wid=%d\n", tid[0], wid[1]);
+
+    bkwrk_dispatch_worker(wid[1]);
+
+    wid[0] = bkwrk_get_worker();
+    ret = bktask_assign_worker(tid[1], wid[0]);
+    if (ret != 0)
+        printf("assign_task_failed tid=%d wid=%d\n", tid[1], wid[0]);
+
+    wid[2] = bkwrk_get_worker();
+    ret = bktask_assign_worker(tid[2], wid[2]);
+    if (ret != 0)
+        printf("assign_task_failed tid=%d wid=%d\n", tid[2], wid[2]);
+
+    bkwrk_dispatch_worker(wid[0]);
+    bkwrk_dispatch_worker(wid[2]);
+
+    fflush(stdout);
+    sleep(1);
+
+    return 0;
+}
